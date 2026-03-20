@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import Layout from '../components/Layout';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 export default function MedicationHistoryPage() {
   const { user } = useAuth();
@@ -32,13 +33,22 @@ export default function MedicationHistoryPage() {
   const filteredLogs = filter === 'all' ? logs : logs.filter(l => l.status === filter);
   const methodEmoji = (m) => m === 'voice' ? '🎤' : m === 'camera' ? '📷' : '👆';
 
+  // Prepare data for Pie Chart
+  const takenCount = logs.filter(l => l.status === 'taken').length;
+  const missedCount = logs.filter(l => l.status === 'missed').length;
+  
+  const chartData = [
+    { name: 'Taken', value: takenCount, color: '#34d399' },
+    { name: 'Missed', value: missedCount, color: '#f87171' }
+  ].filter(d => d.value > 0);
+
   return (
     <Layout>
       <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <div className="flex-col-sm-row">
           <div>
             <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: '#f1f5f9' }}>📋 Medication History</h1>
-            <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginTop: '0.25rem' }}>View complete medication log records</p>
+            <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginTop: '0.25rem' }}>View complete medication log records and adherence stats</p>
           </div>
           {user.role === 'caregiver' && patients.length > 0 && (
             <select value={selectedPatient} onChange={(e) => setSelectedPatient(e.target.value)} className="input-field" style={{ width: 'auto' }}>
@@ -46,6 +56,39 @@ export default function MedicationHistoryPage() {
             </select>
           )}
         </div>
+
+        {/* Overview Chart Section */}
+        {!loading && logs.length > 0 && chartData.length > 0 && (
+          <div className="glass-card" style={{ padding: '2rem', height: '350px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <h2 className="section-heading" style={{ marginBottom: '0.5rem' }}>Overall Adherence</h2>
+            <div style={{ flex: 1, width: '100%', minHeight: 0 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={80}
+                    outerRadius={110}
+                    paddingAngle={5}
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#f1f5f9' }}
+                    itemStyle={{ color: '#f1f5f9' }}
+                    formatter={(value) => [`${value} Doses`, '']}
+                  />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
 
         <div className="filter-group">
           {['all', 'taken', 'missed'].map(f => (
