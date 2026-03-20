@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import Layout from '../components/Layout';
+import PatientLocationMap from '../components/PatientLocationMap';
 
 /**
  * CaregiverDashboard — main screen for caregivers.
@@ -158,6 +159,9 @@ export default function CaregiverDashboard() {
             </div>
           )}
         </div>
+
+        {/* Live Location Map */}
+        <PatientLocationMap />
 
         {/* Link New Patient */}
         {unlinkedPatients.length > 0 && (

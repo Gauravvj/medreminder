@@ -13,6 +13,7 @@ const medicineRoutes = require('./routes/medicineRoutes');
 const logRoutes = require('./routes/logRoutes');
 const alertRoutes = require('./routes/alertRoutes');
 const cognitiveRoutes = require('./routes/cognitiveRoutes');
+const locationRoutes = require('./routes/locationRoutes');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/api/medicines', medicineRoutes);
 app.use('/api/logs', logRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/cognitive', cognitiveRoutes);
+app.use('/api/location', locationRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

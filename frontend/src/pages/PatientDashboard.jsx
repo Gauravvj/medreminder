@@ -5,6 +5,7 @@ import Layout from '../components/Layout';
 import MedicineCard from '../components/MedicineCard';
 import VoiceConfirmation from '../components/VoiceConfirmation';
 import CameraVerification from '../components/CameraVerification';
+import LocationTracker from '../components/LocationTracker';
 
 /**
  * PatientDashboard — main screen for patients.
@@ -143,6 +144,9 @@ export default function PatientDashboard() {
   return (
     <Layout>
       <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        {/* Live Location Tracker */}
+        <LocationTracker />
+
         {/* Active Alarms Banner */}
         {activeAlarms.length > 0 && (
           <div className="alarm-banner" style={{
