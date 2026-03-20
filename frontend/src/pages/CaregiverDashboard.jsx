@@ -59,6 +59,16 @@ export default function CaregiverDashboard() {
     }
   };
 
+  const handleUnlinkPatient = async (patientId) => {
+    if (!window.confirm('Are you sure you want to unlink this patient? You will no longer receive their alerts.')) return;
+    try {
+      await api.delete(`/auth/link-patient/${patientId}`);
+      fetchData();
+    } catch (err) {
+      alert('Failed to unlink patient');
+    }
+  };
+
   const handleMarkRead = async (alertId) => {
     try {
       await api.put(`/alerts/${alertId}/read`);
@@ -151,6 +161,26 @@ export default function CaregiverDashboard() {
                         <p style={{ fontSize: '1.25rem', fontWeight: 800, color: '#818cf8' }}>{s.adherenceRate || 0}%</p>
                         <p style={{ fontSize: '0.6875rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.05em' }}>Adherence</p>
                       </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                      <button
+                        onClick={() => handleUnlinkPatient(patient._id)}
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.15)',
+                          color: '#f87171',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          borderRadius: '0.5rem',
+                          padding: '0.4rem 0.875rem',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={e => { e.target.style.background = 'rgba(239, 68, 68, 0.3)'; }}
+                        onMouseLeave={e => { e.target.style.background = 'rgba(239, 68, 68, 0.15)'; }}
+                      >
+                        Unlink
+                      </button>
                     </div>
                   </div>
                 );

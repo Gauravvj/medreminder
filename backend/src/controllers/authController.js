@@ -129,4 +129,22 @@ const linkPatient = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe, getPatients, linkPatient };
+/**
+ * Unlink a patient from a caregiver.
+ * DELETE /api/auth/link-patient/:patientId
+ */
+const unlinkPatient = async (req, res) => {
+  try {
+    const caregiver = await User.findById(req.user._id);
+    const patientId = req.params.patientId;
+
+    caregiver.linkedPatients.pull(patientId);
+    await caregiver.save();
+
+    res.json({ message: 'Patient unlinked successfully', linkedPatients: caregiver.linkedPatients });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to unlink patient', error: error.message });
+  }
+};
+
+module.exports = { register, login, getMe, getPatients, linkPatient, unlinkPatient };
