@@ -13,7 +13,7 @@ const cognitiveResultSchema = new mongoose.Schema({
   },
   gameType: {
     type: String,
-    enum: ['pattern_memory', 'number_recall'],
+    enum: ['pattern_memory', 'number_recall', 'card_match'],
     required: true,
   },
   score: {
