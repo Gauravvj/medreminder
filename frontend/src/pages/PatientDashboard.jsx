@@ -5,6 +5,7 @@ import Layout from '../components/Layout';
 import MedicineCard from '../components/MedicineCard';
 import VoiceConfirmation from '../components/VoiceConfirmation';
 import CameraVerification from '../components/CameraVerification';
+import LocationTracker from '../components/LocationTracker';
 
 /**
  * PatientDashboard — main screen for patients.
@@ -15,6 +16,7 @@ export default function PatientDashboard() {
   const { user } = useAuth();
   const [medicines, setMedicines] = useState([]);
   const [stats, setStats] = useState(null);
+  const [todaysLogs, setTodaysLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMedicine, setSelectedMedicine] = useState(null);
   const [activeAlarms, setActiveAlarms] = useState([]);
@@ -40,7 +42,12 @@ export default function PatientDashboard() {
 
       let ringingMeds = [];
       medicines.forEach(med => {
-        if (med.scheduleTimes?.includes(currentTime)) {
+        // Find if this medicine was already taken today
+        const isTaken = todaysLogs.some(log => 
+          (log.medicineId?._id === med._id || log.medicineId === med._id) && log.status === 'taken'
+        );
+
+        if (med.scheduleTimes?.includes(currentTime) && !isTaken) {
           const alarmKey = `${med._id}-${currentTime}`;
           if (!dismissedAlarms.has(alarmKey)) {
             ringingMeds.push(med);
@@ -65,7 +72,7 @@ export default function PatientDashboard() {
     checkAlarms();
     const intervalId = setInterval(checkAlarms, 10000);
     return () => clearInterval(intervalId);
-  }, [medicines, dismissedAlarms]);
+  }, [medicines, dismissedAlarms, todaysLogs]);
 
   const dismissAllAlarms = () => {
     const now = new Date();
@@ -91,12 +98,18 @@ export default function PatientDashboard() {
 
   const fetchData = async () => {
     try {
-      const [medsRes, statsRes] = await Promise.all([
+      const [medsRes, statsRes, logsRes] = await Promise.all([
         api.get(`/medicines/${user._id}`),
         api.get(`/logs/stats/${user._id}`),
+        api.get(`/logs/${user._id}`)
       ]);
       setMedicines(medsRes.data);
       setStats(statsRes.data);
+
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      const today = logsRes.data.filter(log => new Date(log.takenTime) >= startOfDay);
+      setTodaysLogs(today);
     } catch (err) {
       console.error('Failed to fetch data:', err);
     } finally {
@@ -211,33 +224,42 @@ export default function PatientDashboard() {
             </div>
           ) : (
             <div className="cards-grid-2">
-              {medicines.map((med) => (
-                <div key={med._id} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <MedicineCard
-                    medicine={med}
-                    patientId={user._id}
-                    onLogged={handleLogged}
-                  />
-                  {/* Select for voice/camera */}
-                  <button
-                    onClick={() => setSelectedMedicine(med)}
-                    style={{
-                      background: selectedMedicine?._id === med._id ? 'rgba(99,102,241,0.15)' : 'none',
-                      border: selectedMedicine?._id === med._id ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
-                      borderRadius: '10px',
-                      padding: '0.5rem',
-                      cursor: 'pointer',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      color: selectedMedicine?._id === med._id ? '#a5b4fc' : '#818cf8',
-                      transition: 'all 0.2s',
-                      fontFamily: 'Inter, sans-serif',
-                    }}
-                  >
-                    🎤📷 Use Voice or Camera for "{med.medicineName}"
-                  </button>
-                </div>
-              ))}
+              {medicines.map((med) => {
+                const isTakenToday = todaysLogs.some(log => 
+                  (log.medicineId?._id === med._id || log.medicineId === med._id) && log.status === 'taken'
+                );
+
+                return (
+                  <div key={med._id} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <MedicineCard
+                      medicine={med}
+                      patientId={user._id}
+                      onLogged={handleLogged}
+                      isTakenToday={isTakenToday}
+                    />
+                    {/* Select for voice/camera */}
+                    {!isTakenToday && (
+                      <button
+                        onClick={() => setSelectedMedicine(med)}
+                        style={{
+                          background: selectedMedicine?._id === med._id ? 'rgba(99,102,241,0.15)' : 'none',
+                          border: selectedMedicine?._id === med._id ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
+                          borderRadius: '10px',
+                          padding: '0.5rem',
+                          cursor: 'pointer',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          color: selectedMedicine?._id === med._id ? '#a5b4fc' : '#818cf8',
+                          transition: 'all 0.2s',
+                          fontFamily: 'Inter, sans-serif',
+                        }}
+                      >
+                        🎤📷 Use Voice or Camera for "{med.medicineName}"
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -261,6 +283,9 @@ export default function PatientDashboard() {
           </div>
         )}
       </div>
+
+      {/* Background Location Tracker */}
+      <LocationTracker />
     </Layout>
   );
 }

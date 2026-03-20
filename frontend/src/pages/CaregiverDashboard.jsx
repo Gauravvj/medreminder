@@ -59,6 +59,16 @@ export default function CaregiverDashboard() {
     }
   };
 
+  const handleUnlinkPatient = async (patientId) => {
+    if (!confirm('Are you sure you want to unlink this patient?')) return;
+    try {
+      await api.put(`/auth/unlink-patient/${patientId}`);
+      fetchData();
+    } catch (err) {
+      alert('Failed to unlink patient');
+    }
+  };
+
   const handleMarkRead = async (alertId) => {
     try {
       await api.put(`/alerts/${alertId}/read`);
@@ -103,9 +113,13 @@ export default function CaregiverDashboard() {
           </div>
           <div className="stat-card">
             <p className="stat-value" style={{ color: '#34d399' }}>
-              {patients.length > 0
-                ? Math.round(Object.values(patientStats).reduce((sum, s) => sum + (s.adherenceRate || 0), 0) / patients.length)
-                : 0}%
+              {(() => {
+                const statsValues = Object.values(patientStats);
+                const patientsWithDoses = statsValues.filter(s => (s.takenCount || 0) + (s.missedCount || 0) > 0);
+                return patientsWithDoses.length > 0
+                  ? Math.round(patientsWithDoses.reduce((sum, s) => sum + (s.adherenceRate || 0), 0) / patientsWithDoses.length)
+                  : 0;
+              })()}%
             </p>
             <p className="stat-label">Avg Adherence</p>
           </div>
@@ -133,10 +147,31 @@ export default function CaregiverDashboard() {
                   <div key={patient._id} className="glass-card" style={{ padding: '1.5rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
                       <div className="patient-avatar">👤</div>
-                      <div>
+                      <div style={{ flex: 1 }}>
                         <h3 style={{ fontWeight: 700, color: '#f1f5f9', fontSize: '0.9375rem' }}>{patient.name}</h3>
                         <p style={{ fontSize: '0.75rem', color: '#64748b' }}>{patient.email}</p>
                       </div>
+                      <button
+                        onClick={() => handleUnlinkPatient(patient._id)}
+                        title="Unlink patient"
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid rgba(239, 68, 68, 0.2)',
+                          borderRadius: '8px',
+                          width: '2rem',
+                          height: '2rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          fontSize: '0.875rem',
+                          color: '#f87171',
+                          transition: 'all 0.2s',
+                          flexShrink: 0,
+                        }}
+                      >
+                        ✕
+                      </button>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', textAlign: 'center' }}>
                       <div>
@@ -202,7 +237,7 @@ export default function CaregiverDashboard() {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
                       <span className={`badge ${alert.type === 'missed_dose' ? 'badge-danger' :
-                          alert.type === 'double_dose_attempt' ? 'badge-warning' : 'badge-info'
+                        alert.type === 'double_dose_attempt' ? 'badge-warning' : 'badge-info'
                         }`}>
                         {alert.type?.replace(/_/g, ' ')}
                       </span>

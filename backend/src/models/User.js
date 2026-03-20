@@ -39,6 +39,12 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   }],
+  // Last known GPS location (patients only)
+  lastLocation: {
+    lat: { type: Number, default: null },
+    lng: { type: Number, default: null },
+    updatedAt: { type: Date, default: null },
+  },
 }, {
   timestamps: true,
 });

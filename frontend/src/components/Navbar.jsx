@@ -37,6 +37,7 @@ export default function Navbar() {
     { path: '/games', label: '🧠 Brain Games' },
   ] : [
     { path: '/caregiver', label: '📊 Dashboard' },
+    { path: '/location', label: '📍 Location' },
     { path: '/schedule', label: '💊 Medicines' },
     { path: '/history', label: '📋 Logs' },
   ];

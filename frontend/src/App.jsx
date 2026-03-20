@@ -9,6 +9,8 @@ import CaregiverDashboard from './pages/CaregiverDashboard';
 import MedicineSchedulePage from './pages/MedicineSchedulePage';
 import MedicationHistoryPage from './pages/MedicationHistoryPage';
 import CognitiveGamePage from './pages/CognitiveGamePage';
+import LiveLocationPage from './pages/LiveLocationPage';
+import MedBot from './components/MedBot';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -22,28 +24,34 @@ function AppRoutes() {
   }
 
   return (
-    <Routes>
-      {/* Landing Page */}
-      <Route path="/" element={!user ? <LandingPage /> : <Navigate to={user.role === 'patient' ? '/dashboard' : '/caregiver'} />} />
+    <>
+      <Routes>
+        {/* Landing Page */}
+        <Route path="/" element={!user ? <LandingPage /> : <Navigate to={user.role === 'patient' ? '/dashboard' : '/caregiver'} />} />
 
-      {/* Public */}
-      <Route path="/login" element={!user ? <LoginPage /> : <Navigate to={user.role === 'patient' ? '/dashboard' : '/caregiver'} />} />
-      <Route path="/register" element={!user ? <RegisterPage /> : <Navigate to={user.role === 'patient' ? '/dashboard' : '/caregiver'} />} />
+        {/* Public */}
+        <Route path="/login" element={!user ? <LoginPage /> : <Navigate to={user.role === 'patient' ? '/dashboard' : '/caregiver'} />} />
+        <Route path="/register" element={!user ? <RegisterPage /> : <Navigate to={user.role === 'patient' ? '/dashboard' : '/caregiver'} />} />
 
-      {/* Patient */}
-      <Route path="/dashboard" element={<ProtectedRoute roles={['patient']}><PatientDashboard /></ProtectedRoute>} />
-      <Route path="/games" element={<ProtectedRoute roles={['patient']}><CognitiveGamePage /></ProtectedRoute>} />
+        {/* Patient */}
+        <Route path="/dashboard" element={<ProtectedRoute roles={['patient']}><PatientDashboard /></ProtectedRoute>} />
+        <Route path="/games" element={<ProtectedRoute roles={['patient']}><CognitiveGamePage /></ProtectedRoute>} />
 
-      {/* Caregiver */}
-      <Route path="/caregiver" element={<ProtectedRoute roles={['caregiver']}><CaregiverDashboard /></ProtectedRoute>} />
+        {/* Caregiver */}
+        <Route path="/caregiver" element={<ProtectedRoute roles={['caregiver']}><CaregiverDashboard /></ProtectedRoute>} />
+        <Route path="/location" element={<ProtectedRoute roles={['caregiver']}><LiveLocationPage /></ProtectedRoute>} />
 
-      {/* Shared */}
-      <Route path="/schedule" element={<ProtectedRoute><MedicineSchedulePage /></ProtectedRoute>} />
-      <Route path="/history" element={<ProtectedRoute><MedicationHistoryPage /></ProtectedRoute>} />
+        {/* Shared */}
+        <Route path="/schedule" element={<ProtectedRoute><MedicineSchedulePage /></ProtectedRoute>} />
+        <Route path="/history" element={<ProtectedRoute><MedicationHistoryPage /></ProtectedRoute>} />
 
-      {/* Default */}
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
+        {/* Default */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+
+      {/* MedBot — only visible when logged in */}
+      {user && <MedBot />}
+    </>
   );
 }
 

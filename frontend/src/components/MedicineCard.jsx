@@ -5,7 +5,7 @@ import api from '../services/api';
  * Displays a single medicine with its schedule and provides
  * a confirm button for logging intake.
  */
-export default function MedicineCard({ medicine, patientId, onLogged }) {
+export default function MedicineCard({ medicine, patientId, onLogged, isTakenToday }) {
   const handleConfirm = async (method = 'manual') => {
     try {
       const res = await api.post('/logs', {
@@ -38,16 +38,22 @@ export default function MedicineCard({ medicine, patientId, onLogged }) {
     return diff >= -30 && diff <= 30;
   });
 
+  // Only show Due Now if it's upcoming AND not taken today
+  const showDueNow = isUpcoming && !isTakenToday;
+
   return (
-    <div className={`medicine-card ${isUpcoming ? 'is-upcoming' : ''}`}>
+    <div className={`medicine-card ${showDueNow ? 'is-upcoming' : ''}`} style={isTakenToday ? { opacity: 0.7, borderColor: 'rgba(52, 211, 153, 0.4)' } : {}}>
       <div className="card-body">
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
           <div>
             <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f1f5f9' }}>{medicine.medicineName}</h3>
             <p style={{ fontSize: '0.8125rem', color: '#94a3b8', marginTop: '0.125rem' }}>{medicine.dosage}</p>
           </div>
-          {isUpcoming && (
+          {showDueNow && (
             <span className="badge badge-warning">⏰ Due Now</span>
+          )}
+          {isTakenToday && (
+            <span className="badge badge-success">✅ Taken</span>
           )}
         </div>
 
@@ -68,13 +74,26 @@ export default function MedicineCard({ medicine, patientId, onLogged }) {
 
       {/* Action Button */}
       <div className="card-footer">
-        <button
-          onClick={() => handleConfirm('manual')}
-          className="btn-success"
-          style={{ width: '100%', fontSize: '0.8125rem' }}
-        >
-          ✅ I Took This Medicine
-        </button>
+        {isTakenToday ? (
+           <button
+             disabled
+             style={{ 
+               width: '100%', fontSize: '0.8125rem', background: 'rgba(52, 211, 153, 0.1)', 
+               color: '#34d399', border: '1px solid rgba(52, 211, 153, 0.3)', borderRadius: '8px', 
+               padding: '0.75rem', fontWeight: 'bold' 
+             }}
+           >
+             ✅ Done for Today
+           </button>
+        ) : (
+          <button
+            onClick={() => handleConfirm('manual')}
+            className="btn-success"
+            style={{ width: '100%', fontSize: '0.8125rem' }}
+          >
+            ✅ I Took This Medicine
+          </button>
+        )}
       </div>
     </div>
   );

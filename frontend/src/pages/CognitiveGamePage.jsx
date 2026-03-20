@@ -33,7 +33,7 @@ export default function CognitiveGamePage() {
         </div>
 
         {!activeGame ? (
-          <div className="cards-grid-2">
+          <div className="cards-grid-3">
             <div className="game-card" onClick={() => setActiveGame('pattern')}>
               <span style={{ fontSize: '3.5rem', display: 'block', marginBottom: '1.25rem' }}>🎨</span>
               <h2 style={{ fontSize: '1.375rem', fontWeight: 800, color: '#f1f5f9', marginBottom: '0.5rem' }}>Pattern Memory</h2>
@@ -46,11 +46,19 @@ export default function CognitiveGamePage() {
               <p style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '1.5rem' }}>Remember the sequence of numbers</p>
               <button className="btn-primary">▶ Play</button>
             </div>
+            <div className="game-card" onClick={() => setActiveGame('reaction')}>
+              <span style={{ fontSize: '3.5rem', display: 'block', marginBottom: '1.25rem' }}>🎯</span>
+              <h2 style={{ fontSize: '1.375rem', fontWeight: 800, color: '#f1f5f9', marginBottom: '0.5rem' }}>Speed Reaction</h2>
+              <p style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '1.5rem' }}>Click the targets as fast as you can</p>
+              <button className="btn-primary" style={{ background: 'linear-gradient(135deg, #f43f5e, #fb923c)' }}>▶ Play Fast</button>
+            </div>
           </div>
         ) : activeGame === 'pattern' ? (
           <PatternGame onFinish={(s) => { saveResult('pattern_memory', s); setActiveGame(null); }} onBack={() => setActiveGame(null)} />
-        ) : (
+        ) : activeGame === 'number' ? (
           <NumberGame onFinish={(s) => { saveResult('number_recall', s); setActiveGame(null); }} onBack={() => setActiveGame(null)} />
+        ) : (
+          <ReactionGame onFinish={(s) => { saveResult('speed_reaction', s); setActiveGame(null); }} onBack={() => setActiveGame(null)} />
         )}
 
         {/* Recent Results */}
@@ -200,6 +208,107 @@ function NumberGame({ onFinish, onBack }) {
         </form>
       )}
       {phase === 'result' && <p style={{ textAlign: 'center', fontSize: '1.25rem', fontWeight: 800, color: '#818cf8', padding: '2rem 0' }}>Final Score: {Math.round(((correct) / totalRounds) * 100)}%</p>}
+    </div>
+  );
+}
+
+/** Speed Reaction Game */
+function ReactionGame({ onFinish, onBack }) {
+  const [activeSquare, setActiveSquare] = useState(null);
+  const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(30); // 30 seconds game
+  const [playing, setPlaying] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  
+  const moveTarget = useCallback(() => {
+    let nextPos;
+    do {
+      nextPos = Math.floor(Math.random() * 9);
+    } while (nextPos === activeSquare);
+    setActiveSquare(nextPos);
+  }, [activeSquare]);
+
+  const startGame = () => {
+    setScore(0);
+    setTimeLeft(30);
+    setPlaying(true);
+    setGameOver(false);
+    moveTarget();
+  };
+
+  useEffect(() => {
+    let timer;
+    if (playing && timeLeft > 0) {
+      timer = setTimeout(() => setTimeLeft(t => t - 1), 1000);
+    } else if (playing && timeLeft === 0) {
+      setPlaying(false);
+      setGameOver(true);
+      setActiveSquare(null);
+      // Calc score: 25 clicks = 100%
+      const finalScore = Math.min(100, Math.round((score / 25) * 100));
+      onFinish(finalScore);
+    }
+    return () => clearTimeout(timer);
+  }, [playing, timeLeft, score, onFinish]);
+
+  const handleSquareClick = (idx) => {
+    if (!playing) return;
+    if (idx === activeSquare) {
+      setScore(s => s + 1);
+      moveTarget();
+    }
+  };
+
+  return (
+    <div className="glass-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', alignItems: 'center' }}>
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: 700 }}>🎯 Speed Reaction</h2>
+        <button onClick={onBack} className="btn-outline" style={{ fontSize: '0.75rem', padding: '0.375rem 0.75rem' }}>← Back</button>
+      </div>
+      
+      {!playing && !gameOver ? (
+        <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+          <p style={{ color: '#94a3b8', marginBottom: '1.5rem', maxWidth: '300px' }}>
+            Click the green targets as fast as you can. You have 30 seconds. Ready?
+          </p>
+          <button onClick={startGame} className="btn-primary" style={{ background: 'linear-gradient(135deg, #f43f5e, #fb923c)', padding: '0.75rem 2.5rem', fontSize: '1.125rem' }}>
+            START
+          </button>
+        </div>
+      ) : (
+        <>
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', padding: '0 1rem' }}>
+            <p style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f87171' }}>⏳ {timeLeft}s</p>
+            <p style={{ fontSize: '1.25rem', fontWeight: 800, color: '#34d399' }}>Score: {score}</p>
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', background: 'rgba(15, 23, 42, 0.4)', padding: '1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.1)' }}>
+            {Array.from({ length: 9 }).map((_, i) => (
+              <div 
+                key={i} 
+                onClick={() => handleSquareClick(i)}
+                style={{
+                  width: '5.5rem', height: '5.5rem', borderRadius: '12px',
+                  background: activeSquare === i ? 'radial-gradient(circle, #34d399 20%, #10b981 100%)' : 'rgba(30, 41, 59, 0.6)',
+                  boxShadow: activeSquare === i ? '0 0 20px rgba(52, 211, 153, 0.6), inset 0 0 10px rgba(255,255,255,0.3)' : 'inset 0 2px 4px rgba(0,0,0,0.2)',
+                  cursor: activeSquare === i ? 'pointer' : 'default',
+                  transition: 'all 0.1s',
+                  transform: activeSquare === i ? 'scale(1.05)' : 'scale(1)',
+                  border: activeSquare === i ? '2px solid #a7f3d0' : '1px solid rgba(255,255,255,0.05)'
+                }}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      {gameOver && (
+        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+          <p style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f1f5f9' }}>Time's Up!</p>
+          <p style={{ fontSize: '1.25rem', color: '#fbbf24', marginTop: '0.5rem' }}>You hit {score} targets.</p>
+          <p style={{ fontSize: '0.875rem', color: '#94a3b8', marginTop: '1rem' }}>Result saved to your progress.</p>
+        </div>
+      )}
     </div>
   );
 }
