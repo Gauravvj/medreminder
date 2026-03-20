@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import api from '../services/api';
@@ -38,16 +38,28 @@ function createPatientIcon(color) {
 
 const MARKER_COLORS = ['#818cf8', '#22d3ee', '#f472b6', '#34d399', '#fbbf24', '#fb923c', '#a78bfa', '#38bdf8'];
 
+const GEOFENCE_RADIUS_M = 5000; // 5km in meters
+
+// Haversine formula for client-side distance check (km)
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 /**
  * Component that smoothly flies to a given position.
  */
-function FlyToPosition({ position }) {
+function FlyToPosition({ position, zoom }) {
   const map = useMap();
   useEffect(() => {
     if (position) {
-      map.flyTo(position, 15, { duration: 1.2 });
+      map.flyTo(position, zoom || 15, { duration: 1.2 });
     }
-  }, [position, map]);
+  }, [position, zoom, map]);
   return null;
 }
 
@@ -60,7 +72,9 @@ export default function LiveLocationPage() {
   const [loading, setLoading] = useState(true);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [flyTo, setFlyTo] = useState(null);
+  const [flyZoom, setFlyZoom] = useState(15);
   const refreshTimerRef = useRef(null);
+  const [settingGeofence, setSettingGeofence] = useState(null); // patientId being set
 
   const fetchLocations = async () => {
     try {
@@ -84,7 +98,36 @@ export default function LiveLocationPage() {
     setSelectedPatient(patient._id);
     if (patient.lastLocation?.lat && patient.lastLocation?.lng) {
       setFlyTo([patient.lastLocation.lat, patient.lastLocation.lng]);
+      setFlyZoom(15);
     }
+  };
+
+  const handleSetSafeZone = async (patient) => {
+    if (!patient.lastLocation?.lat || !patient.lastLocation?.lng) return;
+    setSettingGeofence(patient._id);
+    try {
+      await api.post('/location/geofence', {
+        patientId: patient._id,
+        latitude: patient.lastLocation.lat,
+        longitude: patient.lastLocation.lng,
+      });
+      // Refresh data to show the new circle
+      await fetchLocations();
+      // Fly the map to show the geofence circle (zoom 12 shows ~5km radius nicely)
+      setFlyTo([patient.lastLocation.lat, patient.lastLocation.lng]);
+      setFlyZoom(12);
+    } catch (err) {
+      console.error('Failed to set geofence:', err);
+    } finally {
+      setSettingGeofence(null);
+    }
+  };
+
+  const isOutsideSafeZone = (patient) => {
+    const loc = patient.lastLocation;
+    const gc = patient.geofenceCenter;
+    if (!loc?.lat || !gc?.lat) return false;
+    return haversineKm(loc.lat, loc.lng, gc.lat, gc.lng) > 5;
   };
 
   const getTimeAgo = (dateStr) => {
@@ -135,7 +178,7 @@ export default function LiveLocationPage() {
         </div>
 
         {/* Stats Row */}
-        <div className="stats-grid-3">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
           <div className="stat-card">
             <p className="stat-value" style={{ color: '#818cf8' }}>{patients.length}</p>
             <p className="stat-label">Total Patients</p>
@@ -151,6 +194,12 @@ export default function LiveLocationPage() {
               {patients.filter((p) => !p.lastLocation?.lat).length}
             </p>
             <p className="stat-label">No Location</p>
+          </div>
+          <div className="stat-card">
+            <p className="stat-value" style={{ color: '#f87171' }}>
+              {patients.filter((p) => isOutsideSafeZone(p)).length}
+            </p>
+            <p className="stat-label">Outside Safe Zone</p>
           </div>
         </div>
 
@@ -197,6 +246,62 @@ export default function LiveLocationPage() {
                             {online ? 'Online' : hasLocation ? 'Offline' : 'No data'}
                           </span>
                         </div>
+                        {isOutsideSafeZone(patient) && (
+                          <div style={{
+                            background: 'rgba(248,113,113,0.15)',
+                            color: '#f87171',
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: '6px',
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            marginTop: '0.25rem',
+                            display: 'inline-block',
+                          }}>
+                            🚨 Outside Safe Zone
+                          </div>
+                        )}
+                        {hasLocation && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleSetSafeZone(patient); }}
+                            disabled={settingGeofence === patient._id}
+                            style={{
+                              marginTop: '0.5rem',
+                              padding: '0.5rem 1rem',
+                              fontSize: '0.8rem',
+                              fontWeight: 700,
+                              background: patient.geofenceCenter?.lat
+                                ? 'linear-gradient(135deg, #818cf8, #6366f1)'
+                                : 'linear-gradient(135deg, #22d3ee, #06b6d4)',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              width: '100%',
+                              letterSpacing: '0.02em',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                            }}
+                          >
+                            {settingGeofence === patient._id
+                              ? '⏳ Setting Safe Zone...'
+                              : patient.geofenceCenter?.lat
+                                ? '🔄 Update Safe Zone'
+                                : '📍 Set Safe Zone'}
+                          </button>
+                        )}
+                        {patient.geofenceCenter?.lat && (
+                          <div style={{
+                            marginTop: '0.35rem',
+                            padding: '0.25rem 0.5rem',
+                            background: 'rgba(129,140,248,0.1)',
+                            borderRadius: '6px',
+                            fontSize: '0.65rem',
+                            color: '#a5b4fc',
+                            textAlign: 'center',
+                          }}>
+                            ✅ Safe zone active (5km radius)
+                          </div>
+                        )}
                         {hasLocation && (
                           <p className="location-last-seen">
                             Last seen: {getTimeAgo(patient.lastLocation.updatedAt)}
@@ -232,7 +337,7 @@ export default function LiveLocationPage() {
                   url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
                 />
 
-                {flyTo && <FlyToPosition position={flyTo} />}
+                {flyTo && <FlyToPosition position={flyTo} zoom={flyZoom} />}
 
                 {patientsWithLocation.map((patient, idx) => (
                   <Marker
@@ -265,6 +370,24 @@ export default function LiveLocationPage() {
                     </Popup>
                   </Marker>
                 ))}
+
+                {/* Geofence circles */}
+                {patientsWithLocation
+                  .filter((p) => p.geofenceCenter?.lat != null)
+                  .map((patient, idx) => (
+                    <Circle
+                      key={`geofence-${patient._id}`}
+                      center={[patient.geofenceCenter.lat, patient.geofenceCenter.lng]}
+                      radius={GEOFENCE_RADIUS_M}
+                      pathOptions={{
+                        color: isOutsideSafeZone(patient) ? '#ef4444' : '#818cf8',
+                        fillColor: isOutsideSafeZone(patient) ? '#ef4444' : '#818cf8',
+                        fillOpacity: 0.18,
+                        weight: 3,
+                      }}
+                    />
+                  ))
+                }
               </MapContainer>
             )}
           </div>

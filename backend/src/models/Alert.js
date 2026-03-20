@@ -18,7 +18,7 @@ const alertSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['missed_dose', 'double_dose_attempt', 'low_cognitive_score', 'general'],
+    enum: ['missed_dose', 'double_dose_attempt', 'low_cognitive_score', 'geofence_breach', 'general'],
     default: 'missed_dose',
   },
   message: {

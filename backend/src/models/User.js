@@ -45,6 +45,11 @@ const userSchema = new mongoose.Schema({
     lng: { type: Number, default: null },
     updatedAt: { type: Date, default: null },
   },
+  // Geofence center — the patient's "home" or safe zone center
+  geofenceCenter: {
+    lat: { type: Number, default: null },
+    lng: { type: Number, default: null },
+  },
 }, {
   timestamps: true,
 });
