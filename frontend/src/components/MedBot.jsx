@@ -107,41 +107,113 @@ const medicalKB = [
   },
 ];
 
+// ── 🚨 Crisis & Safety KB (HIGHEST PRIORITY) ──────────
+const crisisKB = [
+  {
+    keywords: ['want to die', 'wanna die', 'kill myself', 'suicide', 'suicidal', 'end my life', 'end it all', 'not worth living', 'better off dead', 'no reason to live', 'take my own life'],
+    response: `🚨 **I hear you, and I'm so sorry you're feeling this way. Your pain is real, and you matter deeply.**\n\nPlease know that you are NOT alone — people care about you, and help is available right now:\n\n📞 **Crisis Helplines (24/7):**\n• 🇮🇳 **iCall:** 9152987821\n• 🇮🇳 **Vandrevala Foundation:** 1860-2662-345\n• 🇺🇸 **988 Suicide & Crisis Lifeline:** Call or text **988**\n• 🌍 **International:** befrienders.org/need-to-talk\n\n💙 Please reach out to a family member, friend, caregiver, or doctor. You deserve support and kindness. You are loved. 💛\n\n⚠️ If you are in immediate danger, please call emergency services (112 / 911) right away.`
+  },
+  {
+    keywords: ['self harm', 'self-harm', 'hurt myself', 'cutting myself', 'harming myself', 'punish myself'],
+    response: `💙 **I'm really concerned about you, and I want you to know that your feelings are valid.**\n\nHurting yourself is not the answer — you deserve care and compassion, not pain.\n\n📞 **Please reach out now:**\n• 🇮🇳 **iCall:** 9152987821\n• 🇮🇳 **Vandrevala Foundation:** 1860-2662-345\n• 🇺🇸 **988 Lifeline:** Call or text **988**\n\n• Try holding ice cubes, snapping a rubber band, or doing intense exercise as safer alternatives.\n• Talk to someone you trust — a friend, family member, or counselor.\n• You are worthy of help and healing. 💛`
+  },
+  {
+    keywords: ['no hope', 'hopeless', 'give up', 'giving up', 'cant go on', 'cant take it anymore', 'cant do this anymore', 'i give up', 'whats the point', 'no point', 'pointless'],
+    response: `💙 **I hear you. When everything feels heavy and pointless, even getting through the day takes incredible strength — and you're still here. That matters.**\n\n• It's okay to feel this way — you don't have to pretend to be fine.\n• These feelings are temporary, even when they don't feel like it.\n• Please talk to someone — a friend, family member, or counselor.\n\n📞 **Helplines:**\n• 🇮🇳 iCall: 9152987821 | Vandrevala: 1860-2662-345\n• 🇺🇸 988 Lifeline: Call/text 988\n\nYou are stronger than you think, and you don't have to face this alone. 💛`
+  },
+  {
+    keywords: ['want to disappear', 'nobody cares', 'no one cares', 'nobody loves me', 'no one loves me', 'burden', 'i am a burden', 'worthless', 'useless', 'i am nothing'],
+    response: `💙 **That is not true — you are NOT a burden and you are NOT worthless. Depression lies to us and makes us believe things that aren't real.**\n\n• The people in your life care, even when it doesn't feel like it.\n• You have value simply by being you — you don't need to "earn" love.\n• Please talk to someone about how you're feeling.\n\n📞 **Helplines:**\n• 🇮🇳 iCall: 9152987821 | Vandrevala: 1860-2662-345\n• 🇺🇸 988 Lifeline: Call/text 988\n\nYou are loved. You are enough. 💛`
+  },
+];
+
+// ── 💙 Emotional & Life Support KB ─────────────────────
+const emotionalKB = [
+  {
+    keywords: ['lonely', 'alone', 'no friends', 'isolated', 'loneliness', 'feel alone', 'all alone'],
+    response: `💙 **Loneliness can feel overwhelming, but you're reaching out — and that takes courage.**\n\n• Try calling or messaging someone you trust, even a short chat can help.\n• Join a local community group, temple, church, or club.\n• Volunteering helps you connect with others and feel valued.\n• Take a walk outside — being around people, even strangers, helps.\n• Consider joining a caregiver or patient support group.\n\n🤗 **Remember:** being alone and being lonely are different things. It's okay to ask for company. You matter to more people than you realize.`
+  },
+  {
+    keywords: ['angry', 'frustrated', 'furious', 'rage', 'irritated', 'annoyed', 'mad', 'hate everything'],
+    response: `😤 **Anger is a natural emotion — it's okay to feel this way. What matters is how we handle it.**\n\n• Take 10 slow, deep breaths before reacting.\n• Remove yourself from the situation for a few minutes.\n• Write down what made you angry — it helps process the emotion.\n• Physical activity (walk, exercise, even cleaning) helps release tension.\n• Talk to someone about what's bothering you.\n\n💡 **Tip:** Anger often masks deeper feelings — hurt, fear, or helplessness. It's okay to explore what's underneath. 💙`
+  },
+  {
+    keywords: ['scared', 'afraid', 'fear', 'terrified', 'frightened', 'phobia', 'nightmares'],
+    response: `🫂 **It's completely okay to feel scared — fear is your mind trying to protect you.**\n\n• Name your fear out loud: "I am scared of ___." This reduces its power.\n• Practice deep breathing: inhale 4 sec → hold 4 → exhale 6 sec.\n• Ground yourself: focus on 5 things you can see, 4 you can touch, 3 you hear.\n• Talk to someone you trust about what frightens you.\n• Remember: bravery isn't the absence of fear — it's acting despite it.\n\n💙 You don't have to face your fears alone. Reach out to a friend, family member, or counselor.`
+  },
+  {
+    keywords: ['crying', 'i cried', 'cant stop crying', 'keep crying', 'tears', 'so sad', 'breaking down', 'fell apart'],
+    response: `💙 **Crying is not weakness — it's your heart's way of healing. Let it out.**\n\n• It's okay to cry. Give yourself permission to feel.\n• After crying, drink some water and take slow breaths.\n• Wrap yourself in something warm — a blanket, a hug.\n• Write down what's making you cry. Sometimes seeing it on paper helps.\n• Talk to someone — you don't have to explain everything, just say "I need support."\n\n🤗 You are brave for feeling deeply. Tomorrow can be a better day. 💛`
+  },
+  {
+    keywords: ['confused', 'lost', 'dont know what to do', 'stuck', 'overwhelmed', 'too much', 'cant think', 'brain fog'],
+    response: `🌀 **It's okay to feel lost or overwhelmed — it means you care enough to want things to be better.**\n\n• Pause and breathe. You don't have to solve everything right now.\n• Write down one small thing you CAN do today — just one.\n• Talk to someone you trust — a fresh perspective can help.\n• Break big problems into tiny steps.\n• For memory/brain fog: stay hydrated, rest, and try a short walk.\n\n💙 **Remember:** clarity comes from rest, not from overthinking. Be gentle with yourself. 🌿`
+  },
+  {
+    keywords: ['miss someone', 'lost someone', 'grief', 'grieving', 'passed away', 'died', 'death of', 'missing them', 'gone forever'],
+    response: `🕊️ **I'm so sorry for your loss. Grief is one of the hardest things a person can go through.**\n\n• There's no "right" way to grieve — let yourself feel whatever comes.\n• Cherish the memories — looking at photos or sharing stories can help.\n• Don't isolate yourself — let people support you.\n• Eat, sleep, and take care of your body even when it feels hard.\n• Consider joining a grief support group.\n\n💙 **Remember:** grieving is not a sign of weakness. It's the price of love, and it shows how deeply you cared. The love never goes away. 💛`
+  },
+  {
+    keywords: ['caregiver burnout', 'tired of caring', 'caregiver stress', 'too much pressure', 'exhausted caregiver', 'taking care of someone'],
+    response: `💜 **Being a caregiver is one of the most selfless and exhausting roles. You are doing an incredible job.**\n\n• You cannot pour from an empty cup — self-care is NOT selfish.\n• Take small breaks throughout the day, even 10 minutes.\n• Ask for help — delegate tasks to family or friends.\n• Join a caregiver support group (online or local).\n• Make sure YOU are eating, sleeping, and getting fresh air.\n\n📞 **Caregiver resources:**\n• 🇮🇳 Alzheimer's & Related Disorders Society of India (ARDSI)\n• 🇺🇸 Caregiver Action Network: 1-855-227-3640\n\n💙 You are a hero. But even heroes need rest. 💛`
+  },
+];
+
+// ── 💬 General / Motivational / Life KB ────────────────
+const generalKB = [
+  {
+    keywords: ['meaning of life', 'purpose of life', 'why do we live', 'what is life', 'reason to live'],
+    response: `🌟 **That's one of life's deepest questions — and there's no single "right" answer.**\n\n• Some find meaning in love and relationships.\n• Others find it in helping people, creating art, or learning.\n• For many, meaning comes from small moments — a sunrise, a child's laugh, a warm cup of tea.\n\n💡 **A beautiful thought:** "The meaning of life is to find your gift. The purpose of life is to give it away." — Pablo Picasso\n\n💙 The fact that you're asking this question means you care deeply. That itself is beautiful.`
+  },
+  {
+    keywords: ['motivate me', 'motivation', 'inspire me', 'i need strength', 'keep going', 'dont give up', 'encourage'],
+    response: `🔥 **You've survived 100% of your worst days. That's an incredible track record.**\n\n• Progress is not always visible — but every small step counts.\n• It's okay to rest, but never quit.\n• Surround yourself with people who believe in you.\n• Celebrate small wins — they add up to big victories.\n\n💬 **"You are braver than you believe, stronger than you seem, and smarter than you think."** — A.A. Milne\n\n💙 Keep going. The world is better with you in it. 🌟`
+  },
+  {
+    keywords: ['tell me a joke', 'joke', 'make me laugh', 'funny', 'cheer me up'],
+    response: `😄 Here's one for you:\n\n**Why did the doctor carry a red pen?** 🖊️\nIn case they needed to draw blood! 😂\n\n**And another:**\nPatient: "Doctor, I feel like a pair of curtains."\nDoctor: "Pull yourself together!" 🤣\n\n💙 I hope that brought a little smile! Laughter really is the best medicine. 😊`
+  },
+  {
+    keywords: ['bored', 'nothing to do', 'boring', 'entertain me', 'what should i do'],
+    response: `🎯 **Here are some fun ideas to brighten your day:**\n\n• 🧩 Try the cognitive games in this app — they're fun AND good for your brain!\n• 📚 Read a short story or listen to an audiobook.\n• 🎵 Put on your favorite music and sing along.\n• 🌿 Go for a short walk outside — fresh air works wonders.\n• 📝 Write a letter to someone you love.\n• 🧘 Try a 5-minute guided meditation.\n\n💙 Sometimes the best thing to do is something small that makes you smile. 😊`
+  },
+  {
+    keywords: ['who are you', 'what are you', 'your name', 'what can you do', 'tell me about yourself'],
+    response: `🤖 **I'm MedBot — your friendly wellness companion!**\n\n• I can help with health questions, symptoms, and lifestyle tips.\n• I'm here for emotional support when you're feeling down.\n• I can chat about life, share motivation, or even tell jokes!\n• I help you stay on track with your medicine reminders.\n\n💙 Think of me as a caring friend who's always here. I may not have all the answers, but I'll always listen and do my best to help! 😊`
+  },
+  {
+    keywords: ['is it wrong', 'is it okay', 'am i bad', 'feel guilty', 'guilt', 'ashamed', 'shame', 'am i wrong'],
+    response: `💙 **Feeling guilty or questioning yourself shows you have a good heart.**\n\n• Everyone makes mistakes — it's part of being human.\n• What matters is that you recognize your feelings and want to do better.\n• Forgive yourself the same way you'd forgive a friend.\n• If something is truly bothering you, talk to someone you trust.\n\n🌿 **Remember:** you are not defined by your worst moments. You are capable of growth, change, and kindness — especially towards yourself. 💛`
+  },
+  {
+    keywords: ['love', 'heartbreak', 'breakup', 'broken heart', 'relationship', 'miss my partner', 'miss him', 'miss her', 'ex'],
+    response: `💔 **Heartbreak is one of the most painful human experiences — and it's okay to grieve a relationship.**\n\n• Let yourself feel the pain — suppressing it only delays healing.\n• Lean on friends and family for support.\n• Focus on self-care: eat well, sleep well, move your body.\n• Avoid making big decisions while emotions are raw.\n• Time really does help — it won't feel this intense forever.\n\n💙 **"The wound is the place where the Light enters you."** — Rumi\n\nYou will love again. You will smile again. Give yourself time. 💛`
+  },
+  {
+    keywords: ['good morning', 'good night', 'good afternoon', 'good evening'],
+    response: `☀️ **Hello there! I hope you're having a wonderful day!**\n\n• Remember to drink some water 💧\n• Take your medicines on time 💊\n• Smile — you're doing great! 😊\n\n💙 What can I help you with today?`
+  },
+  {
+    keywords: ['how are you', 'how r u', 'how are u', 'hows it going', 'whats up'],
+    response: `😊 **I'm doing great, thank you for asking! That's really kind of you.**\n\nMore importantly — how are **you** feeling today? I'm here if you want to talk about anything — health, feelings, or just for a chat! 💙`
+  },
+];
+
 // ── Greeting patterns ────────────────
-const greetings = ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening', 'howdy', 'sup', 'hola'];
+const greetings = ['hi', 'hello', 'hey', 'howdy', 'sup', 'hola'];
 const thanks = ['thank', 'thanks', 'thankyou', 'thank you', 'appreciate', 'helpful'];
 const byes = ['bye', 'goodbye', 'see you', 'take care', 'later'];
 
 /**
- * Find the best matching response from the knowledge base.
+ * Score a message against a knowledge base array.
  */
-function findResponse(userMessage) {
-  const msg = userMessage.toLowerCase().trim();
-
-  // Check greetings
-  if (greetings.some(g => msg.includes(g))) {
-    return "👋 Hello! I'm **MedBot**, your health wellness assistant. You can ask me about symptoms, lifestyle tips, medications, or when to see a doctor. What would you like to know?";
-  }
-
-  // Check thanks
-  if (thanks.some(t => msg.includes(t))) {
-    return "😊 You're welcome! I'm happy to help. Feel free to ask me anything else about your health. Take care! 💙";
-  }
-
-  // Check goodbyes
-  if (byes.some(b => msg.includes(b))) {
-    return "👋 Goodbye! Take care of yourself. Remember to take your medicines on time and stay healthy! See you soon. 💊💙";
-  }
-
-  // Score each knowledge base entry
+function scoreKB(msg, kb) {
   let bestMatch = null;
   let bestScore = 0;
-
-  for (const entry of medicalKB) {
+  for (const entry of kb) {
     let score = 0;
     for (const keyword of entry.keywords) {
       if (msg.includes(keyword)) {
-        // Longer keyword matches are more specific, so weight them higher
         score += keyword.length;
       }
     }
@@ -150,13 +222,50 @@ function findResponse(userMessage) {
       bestMatch = entry;
     }
   }
+  return { match: bestMatch, score: bestScore };
+}
 
-  if (bestMatch && bestScore > 0) {
-    return bestMatch.response;
+/**
+ * Find the best matching response.
+ * Priority order: Crisis → Emotional → Medical → General → Fallback
+ */
+function findResponse(userMessage) {
+  const msg = userMessage.toLowerCase().trim();
+
+  // 🚨 HIGHEST PRIORITY — Crisis detection (always check first)
+  const crisis = scoreKB(msg, crisisKB);
+  if (crisis.score > 0) return crisis.match.response;
+
+  // Check greetings
+  if (greetings.some(g => msg === g || msg.startsWith(g + ' ') || msg.startsWith(g + '!'))) {
+    return "👋 Hello! I'm **MedBot**, your wellness companion. Ask me about health, how you're feeling, life advice, or just chat. I'm here for you! 💙";
   }
 
+  // Check thanks
+  if (thanks.some(t => msg.includes(t))) {
+    return "😊 You're welcome! I'm happy to help. Feel free to ask me anything — health, feelings, or just a friendly chat. Take care! 💙";
+  }
+
+  // Check goodbyes
+  if (byes.some(b => msg.includes(b))) {
+    return "👋 Goodbye! Take care of yourself. Remember to take your medicines on time and stay healthy! See you soon. 💊💙";
+  }
+
+  // 💙 Emotional support (check before medical to prioritize feelings)
+  const emotional = scoreKB(msg, emotionalKB);
+
+  // 🏥 Medical knowledge
+  const medical = scoreKB(msg, medicalKB);
+
+  // 💬 General conversation
+  const general = scoreKB(msg, generalKB);
+
+  // Return the highest-scoring match across all KBs
+  const best = [emotional, medical, general].reduce((a, b) => b.score > a.score ? b : a);
+  if (best.score > 0) return best.match.response;
+
   // Fallback — no match
-  return `🤔 I'm not sure about that specific topic, but here are some general tips:\n\n• **Stay hydrated** — drink plenty of water daily.\n• **Eat balanced meals** with fruits, vegetables, and whole grains.\n• **Exercise regularly** — even a 20-minute walk helps.\n• **Get enough sleep** — aim for 7–9 hours.\n• **Take your medicines on time** using MedReminder!\n\n💡 Try asking me about specific symptoms like **headache**, **fever**, **stomach pain**, **anxiety**, **sleep issues**, **diabetes**, **blood pressure**, or **allergies**.\n\n⚠️ For serious or persistent symptoms, always consult a healthcare professional.`;
+  return `🤗 I'm here for you! I can help with many things:\n\n• 🏥 **Health questions** — headache, fever, diabetes, BP, sleep issues\n• 💙 **Emotional support** — feeling sad, lonely, anxious, overwhelmed\n• 🚨 **Crisis support** — if you're in distress, I'll connect you with help\n• 💬 **Life & chat** — motivation, advice, jokes, or just a friendly conversation\n\n💡 Try saying something like **"I feel anxious"**, **"tell me a joke"**, **"I have a headache"**, or **"I need motivation"**.\n\n⚠️ For serious symptoms, always consult a healthcare professional.`;
 }
 
 

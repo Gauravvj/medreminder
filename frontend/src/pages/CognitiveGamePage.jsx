@@ -219,7 +219,7 @@ function ReactionGame({ onFinish, onBack }) {
   const [timeLeft, setTimeLeft] = useState(30); // 30 seconds game
   const [playing, setPlaying] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-  
+
   const moveTarget = useCallback(() => {
     let nextPos;
     do {
@@ -265,7 +265,7 @@ function ReactionGame({ onFinish, onBack }) {
         <h2 style={{ fontSize: '1.125rem', fontWeight: 700 }}>🎯 Speed Reaction</h2>
         <button onClick={onBack} className="btn-outline" style={{ fontSize: '0.75rem', padding: '0.375rem 0.75rem' }}>← Back</button>
       </div>
-      
+
       {!playing && !gameOver ? (
         <div style={{ textAlign: 'center', padding: '2rem 0' }}>
           <p style={{ color: '#94a3b8', marginBottom: '1.5rem', maxWidth: '300px' }}>
@@ -281,11 +281,11 @@ function ReactionGame({ onFinish, onBack }) {
             <p style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f87171' }}>⏳ {timeLeft}s</p>
             <p style={{ fontSize: '1.25rem', fontWeight: 800, color: '#34d399' }}>Score: {score}</p>
           </div>
-          
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', background: 'rgba(15, 23, 42, 0.4)', padding: '1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.1)' }}>
             {Array.from({ length: 9 }).map((_, i) => (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 onClick={() => handleSquareClick(i)}
                 style={{
                   width: '5.5rem', height: '5.5rem', borderRadius: '12px',
