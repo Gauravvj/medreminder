@@ -6,7 +6,7 @@ import axios from 'axios';
  * JWT token is automatically attached from localStorage.
  */
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'https://medreminder-production.up.railway.app',
   headers: {
     'Content-Type': 'application/json',
   },
