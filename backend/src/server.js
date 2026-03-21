@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const { startReminderService } = require('./services/reminderService');
 
+
+
 // Load environment variables
 dotenv.config();
 
@@ -30,6 +32,10 @@ app.use('/api/alerts', alertRoutes);
 app.use('/api/cognitive', cognitiveRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/location', locationRoutes);
+
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
