@@ -19,12 +19,14 @@ const locationRoutes = require('./routes/locationRoutes');
 const app = express();
 
 // ─────────────────────────────────────────────
-// DB CONNECTION
+// DB CONNECTION (SAFE START)
 // ─────────────────────────────────────────────
-connectDB();
+connectDB().catch((err) => {
+  console.error("❌ MongoDB connection failed:", err.message);
+});
 
 // ─────────────────────────────────────────────
-// ALLOWED FRONTENDS (IMPORTANT FOR CORS)
+// ALLOWED ORIGINS
 // ─────────────────────────────────────────────
 const allowedOrigins = [
   "http://localhost:5173",
@@ -37,13 +39,13 @@ const allowedOrigins = [
 // ─────────────────────────────────────────────
 app.use(cors({
   origin: function (origin, callback) {
-    // allow server-to-server / curl requests
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     } else {
-      return callback(new Error("CORS blocked for origin: " + origin));
+      console.log("❌ Blocked CORS:", origin);
+      return callback(null, false);
     }
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -51,13 +53,13 @@ app.use(cors({
   credentials: true
 }));
 
-// IMPORTANT: handle preflight requests
+// Preflight
 app.options("*", cors());
 
 app.use(express.json());
 
 // ─────────────────────────────────────────────
-// ROUTES (IMPORTANT: USE /api PREFIX)
+// ROUTES
 // ─────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/medicines', medicineRoutes);
@@ -94,13 +96,22 @@ app.use((err, req, res, next) => {
 });
 
 // ─────────────────────────────────────────────
-// START SERVER
+// START SERVER (RAILWAY SAFE)
 // ─────────────────────────────────────────────
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
+if (!PORT) {
+  console.error("❌ PORT not defined by Railway");
+  process.exit(1);
+}
+
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
 
-  // Start background reminder service
-  startReminderService();
+  // Start reminder service safely
+  try {
+    startReminderService();
+  } catch (err) {
+    console.error("❌ Reminder service error:", err.message);
+  }
 });
