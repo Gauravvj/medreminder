@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+backend/node_modules/
+backend/server_error.log
+ai-service/__pycache__/
+ai-service/*.log

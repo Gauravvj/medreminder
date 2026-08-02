@@ -1,13 +1,14 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+/* eslint-disable no-unused-vars -- motion is used via motion.div JSX syntax */
 import { motion, useInView } from 'framer-motion';
+/* eslint-enable no-unused-vars */
 import {
   Bell, Mic, Camera, Users, Brain, ClipboardList,
   ArrowRight, Heart, Shield, Clock,
   Github, Twitter, Linkedin, Mail,
   Menu, X
 } from 'lucide-react';
-import { useState } from 'react';
 
 /* ── Scroll-triggered fade wrapper ─────────────────── */
 function FadeIn({ children, delay = 0, direction = 'up', className = '' }) {
@@ -32,6 +33,7 @@ function FadeIn({ children, delay = 0, direction = 'up', className = '' }) {
   );
 }
 
+/* eslint-disable no-unused-vars -- Icon is used as JSX component in array map */
 /* ── Feature data ──────────────────────────────────── */
 const features = [
   { icon: Bell, title: 'Smart Reminders', desc: 'Timely medication alerts with real-time alarm notifications that ring until acknowledged by the patient.', color: '#818cf8' },

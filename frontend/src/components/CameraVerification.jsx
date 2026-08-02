@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 
 // AI Service URL — change this if the AI service runs on a different host/port
-const AI_SERVICE_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:8000' 
-  : `http://${window.location.hostname}:8000`;
+const AI_SERVICE_URL =
+  import.meta.env.VITE_AI_SERVICE_URL || 'http://localhost:8000';
 
 /**
  * CameraVerification component.
@@ -30,7 +29,7 @@ export default function CameraVerification({ expectedPill, onVerified }) {
   useEffect(() => {
     if (cameraActive && videoRef.current && streamRef.current) {
       videoRef.current.srcObject = streamRef.current;
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().catch(() => { });
     }
   }, [cameraActive]);
 

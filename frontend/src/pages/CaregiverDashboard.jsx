@@ -43,8 +43,8 @@ export default function CaregiverDashboard() {
         }
       }
       setPatientStats(statsMap);
-    } catch (err) {
-      console.error('Failed to fetch data:', err);
+    } catch {
+      // Failed to fetch data — keep current state
     } finally {
       setLoading(false);
     }
@@ -54,7 +54,7 @@ export default function CaregiverDashboard() {
     try {
       await api.put(`/auth/link-patient/${patientId}`);
       fetchData();
-    } catch (err) {
+    } catch {
       alert('Failed to link patient');
     }
   };
@@ -64,7 +64,7 @@ export default function CaregiverDashboard() {
     try {
       await api.put(`/auth/unlink-patient/${patientId}`);
       fetchData();
-    } catch (err) {
+    } catch {
       alert('Failed to unlink patient');
     }
   };
@@ -73,7 +73,7 @@ export default function CaregiverDashboard() {
     try {
       await api.put(`/alerts/${alertId}/read`);
       setAlerts(alerts.map(a => a._id === alertId ? { ...a, read: true } : a));
-    } catch (err) {
+    } catch {
       console.error('Failed to mark alert as read');
     }
   };

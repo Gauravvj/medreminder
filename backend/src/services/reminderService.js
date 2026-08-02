@@ -4,18 +4,6 @@ const MedicationLog = require('../models/MedicationLog');
 const Alert = require('../models/Alert');
 const User = require('../models/User');
 
-/**
- * REMINDER SERVICE
- *
- * Runs every minute and checks all active medicines.
- * For each medicine whose scheduled time matches the current time (±2 min),
- * it checks if the patient has already logged a dose.
- * If not, it creates a "missed_dose" alert for linked caregivers.
- *
- * NOTE: In a production system, you'd use a proper job queue (Bull, Agenda)
- * and push notifications / WebSockets. This cron approach is suitable for demos.
- */
-
 const startReminderService = () => {
   console.log('⏰ Reminder service started — checking every minute');
 

@@ -9,7 +9,11 @@ import api from '../services/api';
  */
 export default function LocationTracker() {
   const { user } = useAuth();
-  const [status, setStatus] = useState('initializing'); // initializing | active | denied | error
+  // Initialize status based on geolocation availability (avoids setState in effect)
+  const [status, setStatus] = useState(() => {
+    if (typeof navigator !== 'undefined' && !navigator.geolocation) return 'error';
+    return 'initializing';
+  }); // initializing | active | denied | error
   const [lastUpdate, setLastUpdate] = useState(null);
   const watchIdRef = useRef(null);
   const intervalRef = useRef(null);
@@ -17,11 +21,6 @@ export default function LocationTracker() {
 
   useEffect(() => {
     if (!user || user.role !== 'patient') return;
-
-    if (!navigator.geolocation) {
-      setStatus('error');
-      return;
-    }
 
     // Watch position continuously
     watchIdRef.current = navigator.geolocation.watchPosition(

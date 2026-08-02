@@ -221,7 +221,7 @@ export default function LiveLocationPage() {
               </div>
             ) : (
               <div className="location-patient-list">
-                {patients.map((patient, idx) => {
+                {patients.map((patient, patientIndex) => {
                   const online = isOnline(patient.lastLocation?.updatedAt);
                   const hasLocation = patient.lastLocation?.lat != null;
                   return (
@@ -231,7 +231,7 @@ export default function LiveLocationPage() {
                       onClick={() => handlePatientClick(patient)}
                     >
                       <div className="location-patient-info">
-                        <div className="location-patient-avatar" style={{ background: `linear-gradient(135deg, ${MARKER_COLORS[idx % MARKER_COLORS.length]}33, ${MARKER_COLORS[idx % MARKER_COLORS.length]}22)` }}>
+                        <div className="location-patient-avatar" style={{ background: `linear-gradient(135deg, ${MARKER_COLORS[patientIndex % MARKER_COLORS.length]}33, ${MARKER_COLORS[patientIndex % MARKER_COLORS.length]}22)` }}>
                           <span>👤</span>
                         </div>
                         <div>
@@ -374,7 +374,7 @@ export default function LiveLocationPage() {
                 {/* Geofence circles */}
                 {patientsWithLocation
                   .filter((p) => p.geofenceCenter?.lat != null)
-                  .map((patient, idx) => (
+                  .map((patient) => (
                     <Circle
                       key={`geofence-${patient._id}`}
                       center={[patient.geofenceCenter.lat, patient.geofenceCenter.lng]}

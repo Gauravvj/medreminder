@@ -284,9 +284,6 @@ export default function MedBot() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Don't render if user is not logged in
-  if (!user) return null;
-
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -298,6 +295,9 @@ export default function MedBot() {
       setTimeout(() => inputRef.current?.focus(), 300);
     }
   }, [isOpen]);
+
+  // Don't render if user is not logged in
+  if (!user) return null;
 
   const sendMessage = async () => {
     const trimmed = input.trim();

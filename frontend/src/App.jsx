@@ -26,8 +26,11 @@ function AppRoutes() {
   return (
     <>
       <Routes>
-        {/* Landing Page */}
-        <Route path="/" element={!user ? <LandingPage /> : <Navigate to={user.role === 'patient' ? '/dashboard' : '/caregiver'} />} />
+        {/* Landing Page — always accessible */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* Smart redirect: logged-in users go to dashboard, others to landing */}
+        <Route path="/home" element={user ? <Navigate to={user.role === 'patient' ? '/dashboard' : '/caregiver'} /> : <Navigate to="/" />} />
 
         {/* Public */}
         <Route path="/login" element={!user ? <LoginPage /> : <Navigate to={user.role === 'patient' ? '/dashboard' : '/caregiver'} />} />

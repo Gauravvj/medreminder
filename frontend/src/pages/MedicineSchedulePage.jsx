@@ -70,7 +70,7 @@ export default function MedicineSchedulePage() {
       setEditingMed(null);
       setFormData({ medicineName: '', dosage: '', scheduleTimes: '', instructions: '' });
       fetchMedicines();
-    } catch (err) {
+    } catch {
       alert('Failed to save medicine');
     }
   };
@@ -91,7 +91,7 @@ export default function MedicineSchedulePage() {
     try {
       await api.delete(`/medicines/${id}`);
       fetchMedicines();
-    } catch (err) {
+    } catch {
       alert('Failed to delete medicine');
     }
   };

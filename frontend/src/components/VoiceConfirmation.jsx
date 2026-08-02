@@ -14,13 +14,6 @@ export default function VoiceConfirmation({ onConfirm }) {
   const recognitionRef = useRef(null);
   const timeoutRef = useRef(null);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopListening();
-    };
-  }, []);
-
   const stopListening = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -29,13 +22,20 @@ export default function VoiceConfirmation({ onConfirm }) {
     if (recognitionRef.current) {
       try {
         recognitionRef.current.abort();
-      } catch (e) {
+      } catch {
         // Ignore errors on abort
       }
       recognitionRef.current = null;
     }
     setListening(false);
   };
+
+  // Cleanup on unmount (stopListening is defined before this)
+  useEffect(() => {
+    return () => {
+      stopListening();
+    };
+  }, []);
 
   const startListening = () => {
     // Check browser support
@@ -147,7 +147,7 @@ export default function VoiceConfirmation({ onConfirm }) {
 
     try {
       recognition.start();
-    } catch (err) {
+    } catch {
       setStatus('❌ Failed to start speech recognition. Please try again.');
       setListening(false);
     }

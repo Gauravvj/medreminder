@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
 
@@ -10,17 +10,12 @@ const AuthContext = createContext(null);
  * - loading: true while checking persisted auth
  */
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // On mount, restore user from localStorage
-  useEffect(() => {
+  // Initialize from localStorage synchronously — avoids setState in effect
+  const [user, setUser] = useState(() => {
     const stored = localStorage.getItem('user');
-    if (stored) {
-      setUser(JSON.parse(stored));
-    }
-    setLoading(false);
-  }, []);
+    return stored ? JSON.parse(stored) : null;
+  });
+  const [loading] = useState(false);
 
   const login = (userData) => {
     setUser(userData);

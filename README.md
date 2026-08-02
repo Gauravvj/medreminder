@@ -1,134 +1,158 @@
-# 💊 Smart Medicine Reminder for Alzheimer's Patients
+# 💊 MedReminder — Smart Medicine Reminder for Alzheimer's Patients
 
-A full-stack web application designed to help Alzheimer's patients take their medicines on time, prevent double dosing, and empower caregivers to monitor medication adherence remotely.
+A comprehensive smart medicine reminder system designed specifically for Alzheimer's patients and their caregivers. Features include voice-activated confirmation, camera-based pill verification, cognitive games, real-time location tracking, and caregiver dashboards.
 
----
+## 🏗️ Project Structure
 
-## 🛑 Problem Statement
-
-Alzheimer’s disease causes progressive memory loss and cognitive decline. One of the most immediate and dangerous challenges patients face is **medication adherence**. Patients frequently forget to take their medication or, more dangerously, forget they already took it and consume a **double dose**. 
-
-Meanwhile, caregivers face immense psychological burden and anxiety, operating without real-time tools to remotely monitor if their loved ones are safe and adhering to their medical schedules.
-
----
-
-## 🔍 Team Problem Validation Approach
-
-Our team validated this problem through the following approach:
-1. **Statistical Verification:** Research indicates over 55 million people live with dementia worldwide, and nearly 70% of those patients regularly struggle with medication adherence.
-2. **Empathy Mapping:** We mapped the user journey of both the patient and the caregiver. We realized standard "click-to-confirm" digital interfaces fail for patients with declining motor and cognitive functions.
-3. **Solution Hypothesis:** We hypothesized that a multimodal approach—using **Voice Recognition** and **Camera AI Verification**—would drastically lower the friction for patients while providing hard proof of adherence to the caregivers.
-
----
-
-## 🏗️ Architecture Overview
-
-The system operates on an decoupled **Client-Server-Microservice** architecture.
-
-| Component | Technology | Responsibility |
-|-----------|-----------|----------------|
-| **Frontend UI** | React.js (Vite) + Tailwind CSS | Delivers role-specific dashboards. Patients get a simplified interface with voice/camera tools; Caregivers get analytics and schedules. |
-| **Main Backend**| Node.js + Express.js + Node-Cron | Manages authentication, scheduled alerts, double-dose prevention logic, and stores logs. |
-| **Database** | MongoDB + Mongoose | Persists patient data, medication histories, alerts, and relations between caregivers and patients. |
-| **AI Service** | Python + FastAPI + EasyOCR | A specialized microservice that receives images, performs Optical Character Recognition (OCR), and verifies pill packets. |
-
----
-
-## 🧠 Key Design Decisions
-
-1. **Role-Based UX Separation:** 
-   - *Patient View:* High-contrast, large text, minimal navigation, focused strictly on what to take *now*.
-   - *Caregiver View:* Data-dense dashboard with adherence rates, miss counts, and scheduling controls.
-2. **Multimodal Confirmation:** Recognizing that buttons confuse patients, we implemented the Web Speech API for voice confirmation and an external Python OCR service for camera-based pill validation.
-3. **Hard Double-Dose Prevention:** The backend implements an aggressive time-window lock. If a dose is logged, secondary attempts trigger a `double_dose_attempt` alert directly to the caregiver instead of updating the log.
-4. **Integrated Cognitive Therapy:** Added built-in Pattern Memory and Number Recall games to stimulate cognitive function natively within the patient's daily routine.
-
----
-
-## 📁 Project Structure
-
-```text
-smart-medicine-reminder/
-├── backend/                # Main Node.js API
-│   ├── src/config/         
-│   ├── src/controllers/    
-│   ├── src/models/         
-│   ├── src/routes/         
-│   └── src/server.js       
-├── frontend/               # React Vite Client
-│   ├── src/components/     
-│   ├── src/context/        
-│   └── src/pages/          
-├── ai-service/             # Python Verification Microservice
-│   ├── main.py
-│   └── requirements.txt
-└── README.md
+```
+hackathon/
+├── backend/          # Express.js REST API (Node.js + MongoDB)
+├── frontend/         # React + Vite frontend (TailwindCSS v4)
+└── ai-service/       # Python AI microservice (FastAPI + EasyOCR)
 ```
 
 ---
 
-## 🚀 Key Setup Instructions
+## 🚀 Deployment Guide
 
 ### Prerequisites
-- **Node.js** (v18+)
-- **MongoDB** (local or Atlas)
-- **Python 3.9+**
 
-### 1. Setup Backend
+1. **Node.js** v18+ and **npm**
+2. **MongoDB** — local instance or [MongoDB Atlas](https://www.mongodb.com/atlas) (free tier works)
+3. **Python** 3.9+ (only if using camera pill verification)
+4. **Google Gemini API Key** — [Get one free](https://aistudio.google.com/app/apikey)
+
+---
+
+### Step 1: Environment Variables
+
+Copy the example env files and fill in your values:
+
 ```bash
-cd backend
-cp .env.example .env
-# Edit .env with your MONGO_URI and JWT_SECRET
-npm install
-npm run dev
+# Backend
+cp hackathon/backend/.env.example hackathon/backend/.env
+# Edit hackathon/backend/.env with your actual values
+
+# Frontend
+cp hackathon/frontend/.env.example hackathon/frontend/.env
+# Edit hackathon/frontend/.env with your actual values
 ```
-*Runs on http://localhost:5000*
 
-### 2. Setup Frontend
+**Required environment variables:**
+
+| Variable | Description | Where to get it |
+|---|---|---|
+| `MONGO_URI` | MongoDB connection string | Local: `mongodb://localhost:27017/medreminder`, Atlas: from your cluster dashboard |
+| `JWT_SECRET` | Secret key for JWT tokens | Generate a random string: `openssl rand -hex 32` |
+| `GEMINI_API_KEY` | Google Gemini AI API key | [Google AI Studio](https://aistudio.google.com/app/apikey) |
+| `VITE_API_URL` | Backend API base URL | For production: your deployed backend URL |
+
+---
+
+### Step 2: Install Dependencies
+
 ```bash
-cd frontend
+# Backend
+cd hackathon/backend
 npm install
-npm run dev
-```
-*Runs on http://localhost:5173*
 
-### 3. Setup AI Microservice
-```bash
-cd ai-service
+# Frontend
+cd hackathon/frontend
+npm install
+
+# AI Service (optional — for camera pill verification)
+cd hackathon/ai-service
 pip install -r requirements.txt
-# Run the Python service natively
-python main.py
 ```
-*Runs on http://localhost:8000*
 
 ---
 
-## 📡 API Endpoints
+### Step 3: Run Locally
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| **POST** | `/api/auth/register` | Register new user |
-| **POST** | `/api/auth/login` | Login user |
-| **GET** | `/api/auth/patients` | List all patients |
-| **POST** | `/api/medicines` | Add medicine |
-| **GET** | `/api/medicines/:patientId` | Get patient's medicines |
-| **POST** | `/api/logs` | Log medicine intake |
-| **GET** | `/api/logs/stats/:patientId` | Get adherence stats |
-| **GET** | `/api/alerts/:caregiverId` | Get caregiver alerts |
-| **POST** | `/api/cognitive` | Save game result |
+**Terminal 1 — Backend:**
+```bash
+cd hackathon/backend
+npm run dev
+# Starts on http://localhost:5000
+```
+
+**Terminal 2 — Frontend:**
+```bash
+cd hackathon/frontend
+npm run dev
+# Starts on http://localhost:5173
+```
+
+**Terminal 3 — AI Service (optional):**
+```bash
+cd hackathon/ai-service
+python main.py
+# Starts on http://localhost:8000
+```
 
 ---
 
-## ✨ Core Features
+### Step 4: Production Build
 
-- **🔔 Smart Reminders** — Cron-based medication reminders evaluating schedule times aggressively.
-- **🚫 Double Dose Prevention** — Smart logging that prevents duplications.
-- **🎤 Voice & 📷 Camera Verification** — Next-level accessibility for patients.
-- **📊 Caregiver Dashboard** — Centralized patient monitoring and alert resolution.
-- **🧠 Cognitive Games** — Brain stimulation reporting directly to the caregiver.
+```bash
+# Build frontend for production
+cd hackathon/frontend
+npm run build
+# Output: frontend/dist/
+
+# Backend is ready for production as-is
+# Use a process manager like PM2:
+npm install -g pm2
+cd hackathon/backend
+pm2 start src/server.js --name medreminder-api
+```
+
+**For production deployment, consider:**
+
+1. **Frontend hosting:** Deploy `frontend/dist/` to Vercel, Netlify, or any static host
+2. **Backend hosting:** Deploy the backend to Railway, Render, Fly.io, or a VPS
+3. **Database:** Use MongoDB Atlas for a managed database
+4. **Set environment variables** on your hosting platform (NOT in .env files)
 
 ---
 
-## 📝 License
+## 🐛 Common Issues & Fixes
 
-This project is built as a hackathon showcase demonstrating full-stack web development with a focus on accessible healthcare technologies.
+### Frontend build errors
+- Ensure Node.js v18+ is installed
+- Run `npm install` before `npm run build`
+- The build was verified working on Node.js with Vite 7
+
+### Backend won't start
+- Make sure MongoDB is running locally OR provide a valid `MONGO_URI`
+- All environment variables in `.env` must be set (use `.env.example` as reference)
+
+### Camera verification not working
+- The AI service (Python + EasyOCR) must be running on port 8000
+- Without the AI service, camera verification falls back gracefully
+
+### Voice confirmation not working
+- Requires HTTPS (or localhost) — browser security restriction
+- Use Chrome or Edge (Safari/Firefox have limited support)
+
+---
+
+## 🔑 Required API Keys Summary
+
+| Service | Key needed? | Purpose | Cost |
+|---|---|---|---|
+| **MongoDB** | Yes (connection string) | Database storage | Free tier available (Atlas) |
+| **JWT Secret** | Yes (random string) | Auth token signing | Free |
+| **Google Gemini API** | Yes | MedBot AI chatbot | Free tier available |
+| **Google Maps/Leaflet** | No | Map tiles (free CDN) | Free |
+| **Speech Recognition** | No | Browser built-in API | Free |
+| **Camera** | No | Browser built-in API | Free |
+
+---
+
+## 🧪 Tech Stack
+
+- **Frontend:** React 19, Vite 7, TailwindCSS v4, Framer Motion, Recharts, Leaflet
+- **Backend:** Express.js, Mongoose, JWT, bcrypt, node-cron
+- **AI Service:** FastAPI, EasyOCR, Pillow
+- **Database:** MongoDB
