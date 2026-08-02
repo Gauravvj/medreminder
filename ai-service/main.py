@@ -1,25 +1,22 @@
 """
-AI Microservice for Smart Medicine Reminder
-Provides simulated pill verification via camera image analysis.
+AI Microservice for Smart Medicine Reminder.
 
-In production, this would use a trained ML model (e.g., TensorFlow/PyTorch)
-to identify pills from images. For this demo, it returns simulated results.
+Demo version:
+Accepts a pill image and returns a simulated verification response.
+
+A production version could replace this logic with an OCR or
+trained computer-vision model.
 """
 
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
-import easyocr
 
-app = FastAPI(title="MedReminder AI Service", version="1.0.0")
+app = FastAPI(
+    title="MedReminder AI Service",
+    version="1.0.0"
+)
 
-# Initialize easyocr reader globally
-try:
-    reader = easyocr.Reader(['en'], gpu=False)
-except Exception as e:
-    print(f"Error initializing easyocr: {e}")
-    reader = None
-
-# Allow cross-origin requests from the frontend
+# Allow requests from frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,7 +27,10 @@ app.add_middleware(
 
 @app.get("/")
 def health_check():
-    return {"status": "OK", "message": "AI Microservice is running"}
+    return {
+        "status": "OK",
+        "message": "MedReminder AI Service is running"
+    }
 
 
 @app.post("/verify-pill")
@@ -39,57 +39,59 @@ async def verify_pill(
     expected_pill: str = Form(None)
 ):
     """
-    Accepts an image file of a pill and the expected pill name,
-    runs OCR on the image, and verifies if the text contains the expected pill.
-    """
-    contents = await image.read()
-    file_size = len(contents)
+    Demo pill verification endpoint.
 
-    if not reader:
-        return {
-            "verified": False,
-            "confidence": 0.0,
-            "pill_name": expected_pill or "Unknown",
-            "message": "OCR service not initialized. Please check backend logs.",
-            "image_size_bytes": file_size,
-        }
+    Accepts an uploaded image and expected medicine name.
+    Verification is simulated in this deployment.
+    """
 
     try:
-        results = reader.readtext(contents)
-        extracted_texts = [text for _, text, _ in results]
-        full_extracted_text = " ".join(extracted_texts).lower()
+        contents = await image.read()
+        file_size = len(contents)
 
-        is_verified = False
-        confidence = 0.0
-        
-        if expected_pill:
-            expected_lower = expected_pill.lower()
-            if expected_lower in full_extracted_text:
-                is_verified = True
-                confidence = 0.95
-            else:
-                parts = expected_lower.split()
-                if any(len(p) > 3 and p in full_extracted_text for p in parts):
-                    is_verified = True
-                    confidence = 0.75
+        # Basic validation
+        if file_size == 0:
+            return {
+                "verified": False,
+                "confidence": 0.0,
+                "pill_name": expected_pill or "Unknown",
+                "message": "No image data received.",
+                "image_size_bytes": 0
+            }
 
+        if not expected_pill:
+            return {
+                "verified": False,
+                "confidence": 0.0,
+                "pill_name": "Unknown",
+                "message": "Expected medicine name was not provided.",
+                "image_size_bytes": file_size
+            }
+
+        # Demo/simulated verification
         return {
-            "verified": is_verified,
-            "confidence": confidence,
-            "pill_name": expected_pill if expected_pill else "Unknown",
-            "message": "Pill verified successfully" if is_verified else f"Could not verify. Text found: '{full_extracted_text[:50]}'. Please ensure the label is clearly visible.",
-            "image_size_bytes": file_size,
+            "verified": True,
+            "confidence": 0.90,
+            "pill_name": expected_pill,
+            "message": "Medicine verification successful (demo mode).",
+            "image_size_bytes": file_size
         }
+
     except Exception as e:
         return {
             "verified": False,
             "confidence": 0.0,
             "pill_name": expected_pill or "Unknown",
             "message": f"Error processing image: {str(e)}",
-            "image_size_bytes": file_size,
+            "image_size_bytes": 0
         }
+
 
 if __name__ == "__main__":
     import uvicorn
-    # Run the server on port 8000
-    uvicorn.run("main:app", host="0.0.0.0", port=8000)
+
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000
+    )
